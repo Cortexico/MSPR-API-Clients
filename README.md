@@ -16,7 +16,7 @@ Cette API gère les informations des clients. Elle permet de créer, lire, mettr
 #### **1. Cloner le Repository**
 
 ```bash
-git clone <url-du-repository>
+git clone https://github.com/Cortexico/MSPR-API-Clients.git
 cd API_clients
 ```
 
