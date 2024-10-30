@@ -18,8 +18,8 @@ if not DATABASE_URL:
     POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 
     DATABASE_URL = (
-    f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}"
-    f"@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+        f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}"
+        f"@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
     )
 
 engine = create_engine(DATABASE_URL)

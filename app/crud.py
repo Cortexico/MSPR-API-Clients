@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app import models, schemas
 
+
 def get_customer(db: Session, customer_id: int):
     return db.query(models.Customer).filter(
         models.Customer.id == customer_id

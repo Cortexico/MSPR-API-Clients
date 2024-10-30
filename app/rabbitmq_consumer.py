@@ -2,8 +2,6 @@ import os
 import json
 import asyncio
 from aio_pika import connect_robust, ExchangeType
-from app.database import SessionLocal
-from app import crud, models
 
 
 async def start_consumer():
