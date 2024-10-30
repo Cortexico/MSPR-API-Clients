@@ -5,6 +5,7 @@ from aio_pika import connect_robust, ExchangeType
 from app.database import SessionLocal
 from app import crud, models
 
+
 async def start_consumer():
     RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
     RABBITMQ_PORT = os.getenv("RABBITMQ_PORT", "5672")
@@ -16,8 +17,9 @@ async def start_consumer():
 
     for attempt in range(1, max_retries + 1):
         try:
-            connection = await aio_pika.connect_robust(
-                f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/"
+            connection = await connect_robust(
+                f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}"
+                f"@{RABBITMQ_HOST}:{RABBITMQ_PORT}/"
             )
             break  # Exit the loop if connection is successful
         except Exception as e:
@@ -37,3 +39,8 @@ async def start_consumer():
             async with message.process():
                 order_data = json.loads(message.body.decode('utf-8'))
                 await handle_order_created(order_data)
+
+
+async def handle_order_created(order_data):
+    # Implémentez ici la logique pour gérer l'événement 'order_created'
+    pass

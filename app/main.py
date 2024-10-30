@@ -16,7 +16,7 @@ app.include_router(customers.router)
 IS_TESTING = os.getenv("IS_TESTING", False)
 
 if not IS_TESTING:
-    # Démarrer le consommateur RabbitMQ et créer les tables au démarrage de l'application
+    # Démarrer RabbitMQ et créer tables
     @app.on_event("startup")
     async def startup_event():
         # Créer les tables dans la base de données
