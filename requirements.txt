@@ -8,3 +8,4 @@ aio_pika
 pytest
 pytest-asyncio
 flake8
+httpx
