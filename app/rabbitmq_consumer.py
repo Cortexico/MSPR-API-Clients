@@ -1,44 +1,50 @@
 import os
 import json
-import asyncio
-from aio_pika import connect_robust, ExchangeType
+import threading
+import pika
+from app.database import SessionLocal
+from app import models
+
+def process_message(ch, method, properties, body):
+    data = json.loads(body)
+    session = SessionLocal()
+    try:
+        customer = models.Customer(**data)
+        session.add(customer)
+        session.commit()
+        session.refresh(customer)
+        print(f"Customer {customer.id} added.")
+    except Exception as e:
+        session.rollback()
+        print(f"Error processing message: {e}")
+    finally:
+        session.close()
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
+def start_consumer():
+    def run():
+        RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+        RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", "5672"))
+        RABBITMQ_USER = os.getenv("RABBITMQ_USER", "guest")
+        RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "guest")
+
+        credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
+        parameters = pika.ConnectionParameters(
+            host=RABBITMQ_HOST, port=RABBITMQ_PORT, credentials=credentials
+        )
+        connection = pika.BlockingConnection(parameters)
+        channel = connection.channel()
 
 
-async def start_consumer():
-    RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
-    RABBITMQ_PORT = os.getenv("RABBITMQ_PORT", "5672")
-    RABBITMQ_USER = os.getenv("RABBITMQ_USER", "guest")
-    RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "guest")
+        channel.exchange_declare(exchange='orders', exchange_type='fanout')
+        result = channel.queue_declare('', exclusive=True)
+        queue_name = result.method.queue
 
-    max_retries = 5
-    retry_delay = 5  # seconds
+        channel.queue_bind(exchange='orders', queue=queue_name)
 
-    for attempt in range(1, max_retries + 1):
-        try:
-            connection = await connect_robust(
-                f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}"
-                f"@{RABBITMQ_HOST}:{RABBITMQ_PORT}/"
-            )
-            break  # Exit the loop if connection is successful
-        except Exception as e:
-            print(f"Attempt {attempt} failed: {e}")
-            await asyncio.sleep(retry_delay)
-    else:
-        print("All retry attempts failed. Exiting.")
-        return  # Or raise an exception
+        channel.basic_consume(queue=queue_name, on_message_callback=process_message)
+        print('RabbitMQ consumer started. Waiting for messages.')
+        channel.start_consuming()
 
-    channel = await connection.channel()
-    exchange = await channel.declare_exchange("orders", ExchangeType.FANOUT)
-    queue = await channel.declare_queue('', exclusive=True)
-    await queue.bind(exchange)
+    threading.Thread(target=run, daemon=True).start()
 
-    async with queue.iterator() as queue_iter:
-        async for message in queue_iter:
-            async with message.process():
-                order_data = json.loads(message.body.decode('utf-8'))
-                await handle_order_created(order_data)
-
-
-async def handle_order_created(order_data):
-    # Implémentez ici la logique pour gérer l'événement 'order_created'
-    pass
