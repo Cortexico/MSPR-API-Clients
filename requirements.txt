@@ -5,6 +5,7 @@ psycopg2-binary
 pydantic
 python-dotenv
 aio_pika
+pika
 pytest
 pytest-asyncio
 flake8
