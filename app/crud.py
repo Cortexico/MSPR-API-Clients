@@ -25,10 +25,10 @@ def create_customer(db: Session, customer: schemas.CustomerCreate):
         raise HTTPException(status_code=400, detail="Email déjà enregistré")
     return db_customer
 
-def update_customer(db: Session, customer_id: int, customer: schemas.CustomerUpdate):
 
-
-
+def update_customer(
+    db: Session, customer_id: int, customer: schemas.CustomerUpdate
+):
     db_customer = get_customer(db, customer_id)
     if db_customer:
         for key, value in customer.dict(exclude_unset=True).items():
@@ -38,7 +38,9 @@ def update_customer(db: Session, customer_id: int, customer: schemas.CustomerUpd
             db.refresh(db_customer)
         except IntegrityError:
             db.rollback()
-            raise HTTPException(status_code=400, detail="Email déjà enregistré")
+            raise HTTPException(
+                status_code=400, detail="Email déjà enregistré"
+            )
         return db_customer
     else:
         raise HTTPException(status_code=404, detail="Client non trouvé")

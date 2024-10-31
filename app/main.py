@@ -1,4 +1,3 @@
-import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from app.database import create_tables
@@ -12,9 +11,9 @@ app = FastAPI()
 
 app.include_router(customers.router)
 
-# Démarrer le consommateur RabbitMQ et créer les tables au démarrage de l'application
+
+# Start consumer and create tables
 @app.on_event("startup")
 def startup_event():
     create_tables()
     start_consumer()
-

@@ -5,6 +5,7 @@ import pika
 from app.database import SessionLocal
 from app import models
 
+
 def process_message(ch, method, properties, body):
     data = json.loads(body)
     session = SessionLocal()
@@ -21,6 +22,7 @@ def process_message(ch, method, properties, body):
         session.close()
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
+
 def start_consumer():
     def run():
         RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
@@ -34,17 +36,16 @@ def start_consumer():
         )
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
-
-
         channel.exchange_declare(exchange='orders', exchange_type='fanout')
         result = channel.queue_declare('', exclusive=True)
         queue_name = result.method.queue
 
         channel.queue_bind(exchange='orders', queue=queue_name)
 
-        channel.basic_consume(queue=queue_name, on_message_callback=process_message)
+        channel.basic_consume(
+            queue=queue_name, on_message_callback=process_message
+        )
         print('RabbitMQ consumer started. Waiting for messages.')
         channel.start_consuming()
 
     threading.Thread(target=run, daemon=True).start()
-
