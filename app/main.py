@@ -17,3 +17,4 @@ app.include_router(customers.router)
 def startup_event():
     create_tables()
     start_consumer()
+

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class CustomerBase(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None

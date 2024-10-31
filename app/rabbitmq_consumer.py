@@ -35,6 +35,7 @@ def start_consumer():
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
 
+
         channel.exchange_declare(exchange='orders', exchange_type='fanout')
         result = channel.queue_declare('', exclusive=True)
         queue_name = result.method.queue
@@ -46,3 +47,4 @@ def start_consumer():
         channel.start_consuming()
 
     threading.Thread(target=run, daemon=True).start()
+
