@@ -2,8 +2,27 @@ import os
 import json
 import threading
 import pika
+import time
 from app.database import SessionLocal
 from app import models
+
+parameters = pika.ConnectionParameters('rabbitmq')
+
+
+def connect_to_rabbitmq():
+    parameters = pika.ConnectionParameters(
+        host="rabbitmq",
+        port=5672,
+        credentials=pika.PlainCredentials("guest", "guest")
+    )
+    while True:
+        try:
+            connection = pika.BlockingConnection(parameters)
+            return connection
+        except pika.exceptions.AMQPConnectionError as e:
+            print(f"Erreur de connexion à RabbitMQ : {e}. Nouvelle tentative dans 5 secondes...")
+            time.sleep(5)
+
 
 
 def process_message(ch, method, properties, body):
@@ -25,7 +44,7 @@ def process_message(ch, method, properties, body):
 
 def start_consumer():
     def run():
-        RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+        RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
         RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", "5672"))
         RABBITMQ_USER = os.getenv("RABBITMQ_USER", "guest")
         RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "guest")
