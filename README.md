@@ -124,6 +124,37 @@ L'API utilise RabbitMQ pour publier et consommer des messages liés aux mises à
 - **Publisher** : Envoie des messages lors de la création ou modification de clients.
 - **Consumer** : Réception et gestion de messages pertinents provenant des autres API (Produits et Commandes).
 
+### Documentation CI/CD - GitHub Actions
+
+#### Contexte
+L'API Clients utilise un pipeline CI/CD via GitHub Actions pour automatiser les tests et les vérifications de code. Ce pipeline permet d'assurer la fiabilité du code en exécutant automatiquement les tests unitaires et les vérifications de style avant toute intégration dans la branche principale.
+
+#### Configuration GitHub Actions
+Le fichier `.github/workflows/ci.yml` définit les étapes de CI/CD pour l'API Clients. Le pipeline est déclenché par des `push` et `pull requests` sur les branches du dépôt.
+
+#### Étapes du Workflow CI/CD
+
+1. **Configurer l'environnement** :
+   - Le workflow initialise un environnement de test en configurant une base de données SQLite pour les tests.
+   - Il utilise les dépendances listées dans `requirements.txt` et configure les variables d’environnement pour simuler l’environnement de production.
+
+2. **Lancer les tests unitaires** :
+   - Les tests unitaires se trouvent dans le répertoire `tests/` et sont exécutés avec `pytest`.
+   - Tests inclus dans `tests/test_customers.py` :
+     - `test_read_customers` : Vérifie l'ajout et la récupération des clients.
+     - Les tests sont exécutés dans un environnement isolé avec une base de données SQLite pour éviter toute interaction avec les données de production.
+
+3. **Vérifications de code** :
+   - `flake8` est utilisé pour analyser la qualité et le style du code, garantissant ainsi une cohérence dans le formatage.
+   - Tout échec de cette étape entraîne un arrêt du pipeline, garantissant que seules les modifications conformes aux standards de code passent les tests.
+
+4. **Build et Déploiement (optionnel)** :
+   - Le workflow peut être étendu pour inclure des étapes de build et de déploiement si nécessaire.
+   - Des actions GitHub supplémentaires peuvent être configurées pour un déploiement automatisé en production.
+
+#### Variables d'environnement de test
+Les variables d’environnement sont configurées directement dans le fichier `ci.yml` ou via un fichier `.env` pour gérer la base de données et les services nécessaires. Ces valeurs peuvent être ajustées dans la configuration de GitHub Actions pour s’adapter aux besoins de l’environnement de test.
+
 ## **Notes Importantes pour Toutes les APIs**
 
 ### **Fichiers `.env`**
