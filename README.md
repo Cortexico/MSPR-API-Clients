@@ -209,3 +209,20 @@ Les variables d’environnement sont configurées directement dans le fichier `c
 
   - Gardez vos dépendances à jour en vérifiant régulièrement le fichier `requirements.txt`.
   
+### Règles d’Hébergement
+
+1. **Sécurité des données** :
+   - Hébergez l'API Clients sur un serveur sécurisé avec des accès restreints. Utilisez des protocoles sécurisés (HTTPS) pour garantir la confidentialité des données client.
+   - Assurez-vous que le fichier `.env` contenant les identifiants de la base de données et de RabbitMQ n’est pas accessible publiquement. Idéalement, stockez ces variables d'environnement dans un gestionnaire sécurisé comme AWS Secrets Manager ou Azure Key Vault.
+
+2. **Accès à la base de données** :
+   - La base de données PostgreSQL utilisée par l'API doit être hébergée dans un environnement sécurisé, de préférence avec des règles de pare-feu qui limitent l’accès à l’API Clients uniquement.
+   - Assurez une sauvegarde régulière de la base de données pour éviter toute perte de données. 
+
+3. **Performances et disponibilité** :
+   - Utilisez un environnement de conteneurisation (comme Docker) pour faciliter la portabilité et la scalabilité de l'API, notamment lors des pics de trafic.
+   - Envisagez un hébergement sur des services de cloud qui permettent l'autoscaling, comme AWS ECS, Google Kubernetes Engine ou Azure Kubernetes Service.
+
+4. **Surveillance et journalisation** :
+   - Intégrez un système de surveillance (par exemple, Prometheus, Grafana) pour suivre les performances et la disponibilité de l'API en temps réel.
+   - Activez la journalisation des erreurs et des événements critiques pour faciliter la détection et la résolution rapide des incidents.
