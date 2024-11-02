@@ -6,7 +6,7 @@ L'API Clients gère les informations des clients et assure leur stockage et réc
 #### Prérequis
 - **Python 3.9+**
 - **Docker** et **Docker Compose** installés
-- **RabbitMQ** en cours d'exécution avec le réseau Docker partagé `backend` (se référer à la [documentation](https://github.com/Cortexico/MSPR-RabbitMQ)
+- **RabbitMQ** en cours d'exécution avec le réseau Docker partagé `backend` (se référer à la [documentation](https://github.com/Cortexico/MSPR-RabbitMQ))
 - Fichier `.env` correctement configuré avec les variables suivantes :
 
 ```plaintext
