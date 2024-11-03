@@ -3,7 +3,7 @@ import os
 
 # Définir les variables d'environnement avant d'importer les modules de l'application
 os.environ["IS_TESTING"] = "True"
-os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///./test.db"
 
 # Supprimer le fichier de base de données de test s'il existe déjà
 if os.path.exists("./test.db"):
