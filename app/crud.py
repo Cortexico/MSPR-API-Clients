@@ -73,7 +73,7 @@ async def update_customer(
         except IntegrityError:
             await db.rollback()
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail="Email déjà enregistré"
             )
         return db_customer
@@ -98,7 +98,7 @@ async def delete_customer(db: AsyncSession, customer_id: int):
         except IntegrityError:
             await db.rollback()
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail="Erreur lors de la suppression"
             )
         return db_customer
