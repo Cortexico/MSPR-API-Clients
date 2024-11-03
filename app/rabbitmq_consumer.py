@@ -20,9 +20,12 @@
 #             connection = pika.BlockingConnection(parameters)
 #             return connection
 #         except pika.exceptions.AMQPConnectionError as e:
-#             print(f"Erreur de connexion à RabbitMQ : {e}. Nouvelle tentative dans 5 secondes...")
-#             time.sleep(5)
+#             print(
+#                 f"Erreur de connexion à RabbitMQ : {e}. "
+#                 "Nouvelle tentative dans 5 secondes..."
+#             )
 
+#             time.sleep(5)
 
 
 # def process_message(ch, method, properties, body):
@@ -55,7 +58,10 @@
 #         )
 #         connection = pika.BlockingConnection(parameters)
 #         channel = connection.channel()
-#         channel.exchange_declare(exchange='customer_updates', exchange_type='fanout')
+#         channel.exchange_declare(
+#             exchange='customer_updates',
+#             exchange_type='fanout'
+#         )
 #         result = channel.queue_declare('', exclusive=True)
 #         queue_name = result.method.queue
 

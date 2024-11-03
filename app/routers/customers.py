@@ -5,11 +5,13 @@ from app.database import get_db
 
 router = APIRouter()
 
+
 @router.post("/customers", response_model=schemas.Customer)
 async def create_customer(
     customer: schemas.CustomerCreate, db: AsyncSession = Depends(get_db)
 ):
     return await crud.create_customer(db=db, customer=customer)
+
 
 @router.get("/customers/{customer_id}", response_model=schemas.Customer)
 async def read_customer(
@@ -21,12 +23,14 @@ async def read_customer(
         raise HTTPException(status_code=404, detail="Client non trouvé")
     return db_customer
 
+
 @router.get("/customers", response_model=list[schemas.Customer])
 async def read_customers(
     skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)
 ):
     customers = await crud.get_customers(db, skip=skip, limit=limit)
     return customers
+
 
 @router.put("/customers/{customer_id}", response_model=schemas.Customer)
 async def update_customer(
@@ -38,6 +42,7 @@ async def update_customer(
     if db_customer is None:
         raise HTTPException(status_code=404, detail="Client non trouvé")
     return db_customer
+
 
 @router.delete("/customers/{customer_id}")
 async def delete_customer(

@@ -10,6 +10,7 @@ RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", "5672"))
 RABBITMQ_USER = os.getenv("RABBITMQ_USER", "guest")
 RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "guest")
 
+
 async def send_message_to_rabbitmq(message):
     connection = await aio_pika.connect_robust(
         host=RABBITMQ_HOST,
@@ -20,7 +21,9 @@ async def send_message_to_rabbitmq(message):
 
     async with connection:
         channel = await connection.channel()
-        exchange = await channel.declare_exchange('customer_exchange', aio_pika.ExchangeType.FANOUT)
+        exchange = await channel.declare_exchange(
+            'customer_exchange', aio_pika.ExchangeType.FANOUT
+        )
         message_body = json.dumps(message)
         await exchange.publish(
             aio_pika.Message(body=message_body.encode()),

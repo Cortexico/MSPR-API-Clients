@@ -8,13 +8,17 @@ from app.rabbitmq_publisher import send_message_to_rabbitmq
 
 # Obtenir un client par ID
 async def get_customer(db: AsyncSession, customer_id: int):
-    result = await db.execute(select(models.Customer).where(models.Customer.id == customer_id))
+    result = await db.execute(
+        select(models.Customer).where(models.Customer.id == customer_id)
+    )
     return result.scalar_one_or_none()
 
 
 # Obtenir tous les clients
 async def get_customers(db: AsyncSession, skip: int = 0, limit: int = 100):
-    result = await db.execute(select(models.Customer).offset(skip).limit(limit))
+    result = await db.execute(
+        select(models.Customer).offset(skip).limit(limit)
+    )
     return result.scalars().all()
 
 
@@ -28,7 +32,11 @@ async def create_customer(db: AsyncSession, customer: schemas.CustomerCreate):
         try:
             await send_message_to_rabbitmq({
                 "action": "create",
-                "data": {"id": db_customer.id, "name": db_customer.name, "email": db_customer.email}
+                "data": {
+                    "id": db_customer.id,
+                    "name": db_customer.name,
+                    "email": db_customer.email
+                }
             })
         except Exception as e:
             print(f"Erreur d'envoi à RabbitMQ (création) : {e}")
@@ -39,7 +47,11 @@ async def create_customer(db: AsyncSession, customer: schemas.CustomerCreate):
 
 
 # Mettre à jour un client
-async def update_customer(db: AsyncSession, customer_id: int, customer: schemas.CustomerUpdate):
+async def update_customer(
+    db: AsyncSession,
+    customer_id: int,
+    customer: schemas.CustomerUpdate
+):
     db_customer = await get_customer(db, customer_id)
     if db_customer:
         for key, value in customer.dict(exclude_unset=True).items():
@@ -50,13 +62,20 @@ async def update_customer(db: AsyncSession, customer_id: int, customer: schemas.
             try:
                 await send_message_to_rabbitmq({
                     "action": "update",
-                    "data": {"id": db_customer.id, "name": db_customer.name, "email": db_customer.email}
+                    "data": {
+                        "id": db_customer.id,
+                        "name": db_customer.name,
+                        "email": db_customer.email
+                    }
                 })
             except Exception as e:
                 print(f"Erreur d'envoi à RabbitMQ (mise à jour) : {e}")
         except IntegrityError:
             await db.rollback()
-            raise HTTPException(status_code=400, detail="Email déjà enregistré")
+            raise HTTPException(
+                status_code=400, 
+                detail="Email déjà enregistré"
+            )
         return db_customer
     else:
         raise HTTPException(status_code=404, detail="Client non trouvé")
@@ -78,7 +97,10 @@ async def delete_customer(db: AsyncSession, customer_id: int):
                 print(f"Erreur d'envoi à RabbitMQ (suppression) : {e}")
         except IntegrityError:
             await db.rollback()
-            raise HTTPException(status_code=400, detail="Erreur lors de la suppression")
+            raise HTTPException(
+                status_code=400, 
+                detail="Erreur lors de la suppression"
+            )
         return db_customer
     else:
         raise HTTPException(status_code=404, detail="Client non trouvé")

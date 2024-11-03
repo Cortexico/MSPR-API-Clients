@@ -11,6 +11,7 @@ app = FastAPI()
 # Inclure le routeur pour les clients
 app.include_router(customers.router)
 
+
 @app.on_event("startup")
 async def startup_event():
     await create_tables()

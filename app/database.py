@@ -29,10 +29,12 @@ async_session = sessionmaker(
 
 Base = declarative_base()
 
+
 # Fonction pour créer les tables
 async def create_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
 
 # Dépendance pour obtenir la session de base de données
 async def get_db():
