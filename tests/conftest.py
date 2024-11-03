@@ -2,6 +2,7 @@ import sys
 import os
 import pytest
 import pytest_asyncio
+import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from app.database import Base, get_db, DATABASE_URL
@@ -24,6 +25,13 @@ test_engine = create_async_engine(DATABASE_URL, echo=True)
 TestingSessionLocal = sessionmaker(
     bind=test_engine, class_=AsyncSession, expire_on_commit=False
 )
+
+# Créer un nouvel event loop pour le module
+@pytest.fixture(scope="module")
+def event_loop():
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
 
 # Fonction asynchrone pour créer les tables
 async def async_create_all():
