@@ -1,7 +1,14 @@
 import sys
 import os
+import pytest
+import pytest_asyncio
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+from app.database import Base, get_db, DATABASE_URL
+from app.main import app
+from httpx import AsyncClient
 
-# Définir les variables d'environnement avant d'importer les modules de l'application
+# Configurer la base de données de test en utilisant aiosqlite
 os.environ["IS_TESTING"] = "True"
 os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///./test.db"
 
@@ -12,36 +19,38 @@ if os.path.exists("./test.db"):
 # Ajouter le répertoire racine du projet au sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import pytest
-from sqlalchemy.orm import sessionmaker
-from app.database import Base, get_db, engine
-from app.main import app
-from fastapi.testclient import TestClient
-
-# Créer une session de base de données pour les tests
+# Utiliser un moteur asynchrone pour les tests
+test_engine = create_async_engine(DATABASE_URL, echo=True)
 TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine
+    bind=test_engine, class_=AsyncSession, expire_on_commit=False
 )
 
+# Fonction asynchrone pour créer les tables
+async def async_create_all():
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+# Fonction asynchrone pour supprimer les tables
+async def async_drop_all():
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
 # Surcharger la dépendance get_db pour utiliser la session de test
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
+async def override_get_db():
+    async with TestingSessionLocal() as session:
+        yield session
 
 app.dependency_overrides[get_db] = override_get_db
 
-# Créer les tables avant les tests et les supprimer après
-@pytest.fixture(scope="module")
-def client():
-    # Créer les tables
-    Base.metadata.create_all(bind=engine)
-    with TestClient(app) as c:
+# Fixture pour préparer et nettoyer la base de données de test
+@pytest_asyncio.fixture(scope="module", autouse=True)
+async def setup_database():
+    await async_create_all()
+    yield
+    await async_drop_all()
+
+# Fixture pour le client asynchrone
+@pytest_asyncio.fixture(scope="module")
+async def client():
+    async with AsyncClient(app=app, base_url="http://test") as c:
         yield c
-    # Supprimer les tables
-    Base.metadata.drop_all(bind=engine)
-    # Supprimer le fichier de base de données de test
-    if os.path.exists("./test.db"):
-        os.remove("./test.db")
