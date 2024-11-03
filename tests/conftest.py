@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from app.database import Base, get_db, DATABASE_URL
 from app.main import app
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 
 # Configurer la base de données de test en utilisant aiosqlite
 os.environ["IS_TESTING"] = "True"
@@ -52,5 +52,6 @@ async def setup_database():
 # Fixture pour le client asynchrone
 @pytest_asyncio.fixture(scope="module")
 async def client():
-    async with AsyncClient(app=app, base_url="http://test") as c:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as c:
         yield c
