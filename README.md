@@ -225,4 +225,4 @@ Les variables d’environnement sont configurées directement dans le fichier `c
 
 4. **Surveillance et journalisation** :
    - Intégrez un système de surveillance (par exemple, Prometheus, Grafana) pour suivre les performances et la disponibilité de l'API en temps réel.
-   - Activez la journalisation des erreurs et des événements critiques pour faciliter la détection et la résolution rapide des incidents.
+   - Activez la journalisation des erreurs et des événements critiques pour faciliter la détection et la résolution rapide des incidents techniques.
