@@ -226,3 +226,22 @@ Les variables d’environnement sont configurées directement dans le fichier `c
 4. **Surveillance et journalisation** :
    - Intégrez un système de surveillance (par exemple, Prometheus, Grafana) pour suivre les performances et la disponibilité de l'API en temps réel.
    - Activez la journalisation des erreurs et des événements critiques pour faciliter la détection et la résolution rapide des incidents techniques.
+
+## Déploiement Kubernetes
+
+Ce projet contient également les fichiers nécessaires pour déployer l'API Clients et sa base de données PostgreSQL dans un cluster Kubernetes.
+
+Les ressources créées sont :
+
+- **Deployment** pour l'API Clients (`api-clients`)
+- **Service** de type `NodePort` pour exposer l'API (`api-clients`)
+- **StatefulSet** pour la base de données PostgreSQL (`postgres-clients`) avec stockage persistant
+- **Service** de type `Headless` (`postgres-clients`) pour la base de données
+
+### Commandes de déploiement
+
+Appliquer les ressources Kubernetes :
+```bash
+kubectl apply -f api-clients.yaml
+kubectl apply -f postgres-clients.yaml
+
