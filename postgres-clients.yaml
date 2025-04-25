@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-clients
+spec:
+  serviceName: postgres-clients
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-clients
+  template:
+    metadata:
+      labels:
+        app: postgres-clients
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: customers
+        - name: POSTGRES_PASSWORD
+          value: apiCustomers
+        - name: POSTGRES_DB
+          value: customers_db
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-clients
+spec:
+  clusterIP: None
+  selector:
+    app: postgres-clients
+  ports:
+  - port: 5432

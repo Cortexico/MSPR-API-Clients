@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-clients
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-clients
+  template:
+    metadata:
+      labels:
+        app: api-clients
+    spec:
+      containers:
+      - name: api-clients
+        image: api-clients:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        env:
+        - name: POSTGRES_USER
+          value: customers
+        - name: POSTGRES_PASSWORD
+          value: apiCustomers
+        - name: POSTGRES_DB
+          value: customers_db
+        - name: POSTGRES_HOST
+          value: postgres-clients
+        - name: RABBITMQ_HOST
+          value: rabbitmq
+        - name: RABBITMQ_PORT
+          value: "5672"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-clients
+spec:
+  type: NodePort
+  selector:
+    app: api-clients
+  ports:
+  - port: 8000
+    targetPort: 8000
